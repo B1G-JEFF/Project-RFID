@@ -3,8 +3,12 @@ const prisma = new PrismaClient();
 
 export default {
     async newCard(req, res) {
+
+        const tagModel = /^([A-F]|[0-9]{2,2})+\s([A-F]|[0-9]{2,2})+\s([A-F]|[0-9]{2,2})+\s([A-F]|[0-9]{2,2})+$/g
+
         const { id } = req.params
-        const { tag, perm } = req.body
+
+        let { tag, perm } = req.body
         try {
             const user = await prisma.users.findUnique({ where: { id: Number(id) } })
 
@@ -12,11 +16,14 @@ export default {
                 return ({ error: "User not foud" })
             }
 
-            console.log(id, "\n", tag, "\n", perm)
-
+            tag = tag.toUpperCase()
+            if (!tagModel.test(tag)) {
+                return res.json({ error: "Tag format is invalid" })
+            }
             const createCard = await prisma.cards.create({
                 data: {
                     tag,
+                    perm,
                     Users: { connect: { id: user.id } }
                 },
             })
@@ -49,12 +56,19 @@ export default {
     },
     async updateCard(req, res) {
         try {
+            const tagModel = /^([A-F]|[0-9]{2,2})+\s([A-F]|[0-9]{2,2})+\s([A-F]|[0-9]{2,2})+\s([A-F]|[0-9]{2,2})+$/g
+
             const { id } = req.params
             const { tag, perm } = req.body
 
             let card = await prisma.cards.findUnique({ where: { id: Number(id) } })
             if (!card) return res.json({ error: "Card not found" })
 
+            tag = tag.toUpperCase()
+            if (!tagModel.test(tag)) {
+                return res.json({ error: "Tag format is invalid" })
+            }
+            
             card = await prisma.cards.update({ where: { id: Number(id) }, data: { tag, perm } })
 
             return res.json({ card })
@@ -69,8 +83,8 @@ export default {
 
             if (!card) return res.json({ error: "Card not found" })
 
-             await prisma.cards.delete({where:{id: Number(id)}})
-             return res.json({mensage:"Card deleted"})
+            await prisma.cards.delete({ where: { id: Number(id) } })
+            return res.json({ mensage: "Card deleted" })
         } catch (error) {
             return res.json({ error })
         }

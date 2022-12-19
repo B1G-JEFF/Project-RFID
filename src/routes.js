@@ -16,5 +16,5 @@ router.get("/cards", CardControler.findAllCards);
 router.get("/card/:id", CardControler.findCard);
 router.put("/cards/:id", CardControler.updateCard);
 router.delete("/cards/:id", CardControler.deleteCard);
-// sdfdfss
+
 export { router };

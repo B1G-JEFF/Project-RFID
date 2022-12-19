@@ -5,14 +5,14 @@ const prisma = new PrismaClient();
 export default {
   async newUser(req, res) {
     try {
-      const { name, email } = req.body;
+      let { name, email } = req.body;
 
       let user = await prisma.users.findUnique({ where: { email } });
 
       if (user) {
         return res.json({ error: "invalid email" });
       }
-
+      name = name.toLowerCase()
       user = await prisma.users.create({
         data: { name, email },
       });
