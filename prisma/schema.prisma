@@ -1,4 +1,3 @@
-// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -15,15 +14,23 @@ model Users {
   name       String
   email      String   @unique
   role       String   @default("student")
-  card       Cards[]
   created_at DateTime @default(now())
+  Cards      Cards?
 }
 
 model Cards {
   id         Int      @id @default(autoincrement())
   tag        String   @unique
   perm       Int      @default(1)
-  userId     Int
   created_at DateTime @default(now())
-  Users      Users?   @relation(fields: [userId], references: [id])
+  user       Users    @relation(fields: [usersId], references: [id])
+  usersId    Int      @unique
+}
+
+model TagHistory {
+  id         Int      @id @default(autoincrement())
+  tag        String
+  checked_at DateTime @default(now())
+  authorized Boolean?
+  user       Int      @default(0)
 }
