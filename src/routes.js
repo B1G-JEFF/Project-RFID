@@ -5,6 +5,7 @@ import CardControler from "./controllers/CardControler.js";
 import CardChecker from "./controllers/CardChecker";
 import CardHistory from "./controllers/CardHistory.js";
 const router = Router();
+
 // rotas para criacao e edicao do ususario
 router.post("/user", UserControler.newUser);
 router.get("/users", UserControler.findAllUser);
@@ -22,5 +23,9 @@ router.delete("/cards/:id", CardControler.deleteCard);
 //rota de verificaçao das tags 
 router.get("/tagcheck/:tag", CardChecker.Check);
 // rotas do historico de tags
-router.get("/taghistory",CardHistory.LastCards)
+router.get("/taghistory",CardHistory.LastCard);
+router.get("/taghistory/lasts",CardHistory.LastCards)
+router.get("/taghistory/user/:user",CardHistory.LastentryUser)
+router.get("/taghistory/card/:card",CardHistory.LastentryCard)
+
 export { router };

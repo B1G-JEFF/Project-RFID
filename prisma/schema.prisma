@@ -32,5 +32,5 @@ model TagHistory {
   tag        String
   checked_at DateTime @default(now())
   authorized Boolean?
-  user       Int      @default(0)
+  user       Int?      @default(0)
 }

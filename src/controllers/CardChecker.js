@@ -1,4 +1,4 @@
-// @ts-check
+//@ts-check
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
@@ -10,37 +10,35 @@ export default {
             // modelo de tag aceito
             const tagModel = /^([A-F]|[0-9]{2,2})+\s([A-F]|[0-9]{2,2})+\s([A-F]|[0-9]{2,2})+\s([A-F]|[0-9]{2,2})+$/g
 
-            // verufica se o a tag e valida 
+            // verifica se o a tag e valida 
             if (!tagModel.test(tag)) {
                 if (tag.length != 11) {
                     return res.json({ error: "Tag format is invalid" })
                 }
             }
             // verifica se a tag e cadastrada 
-            const tagcheck = await prisma.cards.findMany({ where: { tag: tag } })
-            console.log(tagcheck)
-            if (tagcheck.length < 1) {
-                var authorized = Boolean(false)
+            const tagcheck = await prisma.cards.findUnique({ where: { tag: tag } ,select:{id:true}})
+            // console.log(tagcheck)
+            if (!tagcheck) {
+                // se nao ela recebe falso
+                var authorized = false
+                // adiciona ao historico como nao cadastrada
+                const add = await prisma.tagHistory.create({ data: { tag, authorized } })
+
+                return res.json(false)
+                
+            } else { authorized = true }
+                // caso ela seja ela recebe true 
+                console.log(Number(tagcheck.id))
                 const add = await prisma.tagHistory.create({
                     data: {
                         tag,
                         authorized,
-                        card: { connect: { id: 0 } }
+                        user:tagcheck.id 
                     }
                 })
-                return res.json(false)
-            } else { authorized = Boolean(true) }
-
-
-            const add = await prisma.tagHistory.create({
-                data: {
-                    tag,
-                    authorized,
-                    card: { connect: { id: tagcheck[0].id } }
-                }
-            })
-            console.log(add)
-            return res.json(true)
+                return res.json(true)
+            
         } catch (error) {
             console.log(error)
             return res.json({ error })
